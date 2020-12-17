@@ -16,6 +16,8 @@ const cleancss     = require('gulp-clean-css')
 const autoprefixer = require('gulp-autoprefixer')
 const rename       = require('gulp-rename')
 const imagemin     = require('gulp-imagemin')
+const webp         = require('gulp-webp')
+const webpcss      = require('gulp-webp-css')
 const newer        = require('gulp-newer')
 const rsync        = require('gulp-rsync')
 const del          = require('del')
@@ -61,6 +63,7 @@ function styles() {
 	return src([`app/styles/${preprocessor}/*.*`, `!app/styles/${preprocessor}/_*.*`])
 		.pipe(eval(`${preprocessor}glob`)())
 		.pipe(eval(preprocessor)())
+		.pipe(webpcss())
 		.pipe(autoprefixer({ overrideBrowserslist: ['last 10 versions'], grid: true }))
 		.pipe(cleancss({ level: { 1: { specialComments: 0 } },/* format: 'beautify' */ }))
 		.pipe(rename({ suffix: ".min" }))
@@ -70,6 +73,10 @@ function styles() {
 
 function images() {
 	return src(['app/images/src/**/*'])
+		.pipe(webp({
+			quality: 70
+		}))
+		.pipe(src(['app/images/src/**/*']))
 		.pipe(newer('app/images/dist'))
 		.pipe(imagemin())
 		.pipe(dest('app/images/dist'))
